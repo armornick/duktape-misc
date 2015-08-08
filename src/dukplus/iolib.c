@@ -242,6 +242,16 @@ static duk_ret_t dukio_writefile(duk_context *ctx) {
 	return 0;
 }
 
+static duk_ret_t dukio_exists(duk_context *ctx) {
+	const char *filename = duk_require_string(ctx, 0);
+
+	FILE *f = fopen(filename, "r");
+	duk_push_boolean(ctx, (f != NULL));
+	fclose(f);
+
+	return 1;
+}
+
 static const duk_function_list_entry dukio_file_prototype[] = {
 	{ "rewind", dukio_rewind, 0},
 	{ "gets", dukio_gets, 0 },
@@ -258,6 +268,7 @@ static const duk_function_list_entry dukio_module[] = {
 	{ "open", dukio_open, 2 },
 	{ "readFile", dukio_readfile, 1 },
 	{ "writeFile", dukio_writefile, 2},
+	{ "exists", dukio_exists, 1 },
 	{ NULL, NULL, 0}
 };
 

@@ -64,7 +64,11 @@ print("file length: " + contents.toString().length)
 
 var FILENAME = "test.txt"
 
-io.writeFile(FILENAME, "there is no spoon\nbiatches!")
+if (io.exists(FILENAME)) {
+	print("file already exists: not creating")
+} else {
+	io.writeFile(FILENAME, "there is no spoon\nbiatches!")	
+}
 
 var contents = io.readFile(FILENAME)
 print(FILENAME + ': ' + contents.toString().length + " bytes")
