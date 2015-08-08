@@ -4,6 +4,7 @@
 #define CLIBS		"$$CLIBS"
 
 duk_ret_t duk_loadlib (duk_context *ctx);
+void register_dukio(duk_context *ctx);
 
 void prepare_duk_env(duk_context *ctx);
 
@@ -38,4 +39,6 @@ void prepare_duk_env(duk_context *ctx) {
     duk_push_global_object(ctx);
     duk_push_c_function(ctx, duk_loadlib, 1 /*nargs*/);
     duk_put_prop_string(ctx, -2, "$loadlib");
+
+    register_dukio(ctx);
 }

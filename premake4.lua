@@ -50,7 +50,8 @@ solution "DynamicDuktape"
 
 		includedirs { path.join(DUKTAPE_DIR, 'src') }
 
-		files { path.join(DUKPLUS_DIR, 'loadlib.c'), path.join(DUKPLUS_DIR, 'loadlib-test.c') }
+		files { path.join(DUKPLUS_DIR, 'loadlib.c'), path.join(DUKPLUS_DIR, 'iolib.c'), 
+			path.join(DUKPLUS_DIR, 'loadlib-test.c') }
 		links { "duktape" }
 
 	project "test-module"
