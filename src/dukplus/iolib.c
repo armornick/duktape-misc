@@ -1,6 +1,8 @@
 /*
 I/O Library for Duktape (based on stdio)
 Based on the liolib.c file of the Lua 5.2.3 source.
+
+define BUILD_AS_DLL to build as a duktape module.
 */
 
 #include <stdio.h>
@@ -300,12 +302,24 @@ static int dukio_core(duk_context *ctx) {
 	return mod;
 }
 
-duk_ret_t dukopen_io(duk_context *ctx) {
+#ifdef BUILD_AS_DLL
+
+#if defined(_WIN32)
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+DLL_EXPORT duk_ret_t dukopen_io(duk_context *ctx) {
 	dukio_core(ctx);
 	return 1;
 }
+
+#else
 
 void register_dukio(duk_context *ctx) {
 	dukio_core(ctx);
 	duk_put_global_string(ctx, "io");
 }
+
+#endif
