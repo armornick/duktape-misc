@@ -8,7 +8,7 @@ Based on the liolib.c file of the Lua 5.2.3 source.
 #include <stdlib.h>
 #include <duktape.h>
 
-#define DEBUG /* activate debug mode */
+// #define DEBUG /* activate debug mode */
 
 #if !defined(duk_checkmode)
 
@@ -73,12 +73,16 @@ static void dukio_push(duk_context *ctx, FILE *f, const char *filename) {
 }
 
 static duk_ret_t dukio_file_finalizer(duk_context *ctx) {
-	#ifdef DEBUG
+	#if 0
 	printf("%s\n", "calling dukio file finalizer");
 	#endif
 
 	FILE *f = dukio_require_file(ctx, 0);
 	fclose(f);
+
+	#ifdef DEBUG
+	printf("%s\n", "finished calling dukio file finalizer");
+	#endif
 	return 0;
 }
 
@@ -111,6 +115,26 @@ static duk_ret_t dukio_open(duk_context *ctx) {
 	return 1;
 }
 
+static duk_ret_t dukio_rewind(duk_context *ctx) {
+	FILE *f = dukio_file_from_this(ctx);
+
+	rewind(f);
+
+	return 0;
+}
+
+static duk_ret_t dukio_size(duk_context *ctx) {
+	FILE *f = dukio_file_from_this(ctx);
+
+	long current_pos = ftell(f);
+	fseek(f, 0, SEEK_END);
+	long size = ftell(f);
+	fseek(f, current_pos, SEEK_SET);
+
+	duk_push_int(ctx, size);
+	return 1;
+}
+
 static duk_ret_t dukio_gets(duk_context *ctx) {
 	FILE *f = dukio_file_from_this(ctx);
 	char buffer[DUKIO_BUFSIZ];
@@ -130,6 +154,113 @@ static duk_ret_t dukio_puts(duk_context *ctx) {
 	return 0;
 }
 
+static duk_ret_t dukio_read(duk_context *ctx) {
+	FILE *f = dukio_file_from_this(ctx);
+	long byten = duk_require_int(ctx, 0);
+
+	#ifdef DEBUG
+	printf("%s %d\n", "reading from file: ", byten);
+	#endif
+
+	void *bytes = duk_push_fixed_buffer(ctx, byten);
+	fread(bytes, 1, byten, f);
+
+	#ifdef DEBUG
+	printf("%s\n", "finished reading");
+	#endif
+
+	return 1;
+}
+
+static duk_ret_t dukio_readall(duk_context *ctx) {
+	FILE *f = dukio_file_from_this(ctx);
+
+	fseek(f, 0, SEEK_END);
+	long size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	void *bytes = duk_push_fixed_buffer(ctx, size);
+	fread(bytes, 1, size, f);
+	rewind(f);
+
+	return 1;
+}
+
+static duk_ret_t dukio_get(duk_context *ctx) {
+	FILE *f = dukio_file_from_this(ctx);
+
+	int c = fgetc(f);
+
+	duk_push_int(ctx, c);
+	return 1;
+}
+
+static duk_ret_t dukio_getc(duk_context *ctx) {
+	FILE *f = dukio_file_from_this(ctx);
+	char s[2];
+
+	int c = fgetc(f);
+	s[0] = (char) c;
+	s[1] = '\0';
+
+	duk_push_string(ctx, s);
+	return 1;
+}
+
+static duk_ret_t dukio_readfile(duk_context *ctx) {
+	const char *filename = duk_require_string(ctx, 0);
+	FILE *f = fopen(filename, "r");
+
+	fseek(f, 0, SEEK_END);
+	long size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	void *bytes = duk_push_fixed_buffer(ctx, size);
+	fread(bytes, 1, size, f);
+	fclose(f);
+
+	return 1;
+}
+
+static duk_ret_t dukio_writefile(duk_context *ctx) {
+	const char *filename = duk_require_string(ctx, 0);
+	FILE *f = fopen(filename, "w+");
+	
+	if (duk_is_buffer(ctx, 1)) {
+		
+		void *buffer; duk_size_t sz;
+		buffer = duk_get_buffer(ctx, 1, &sz);
+		fwrite(buffer, 1, sz, f);
+
+	} else if (duk_is_string(ctx, 1)) {
+
+		const char *outputs = duk_get_string(ctx, 1);
+		fputs(outputs, f);
+
+	}
+
+	fclose(f);
+
+	return 0;
+}
+
+static const duk_function_list_entry dukio_file_prototype[] = {
+	{ "rewind", dukio_rewind, 0},
+	{ "gets", dukio_gets, 0 },
+	{ "puts", dukio_puts, 1},
+	{ "read", dukio_read, 1},
+	{ "readAll", dukio_readall, 0},
+	{ "get", dukio_get, 0},
+	{ "getc", dukio_getc, 0},
+	{ "size", dukio_size, 0 },
+	{ NULL, NULL, 0 }
+};
+
+static const duk_function_list_entry dukio_module[] = {
+	{ "open", dukio_open, 2 },
+	{ "readFile", dukio_readfile, 1 },
+	{ "writeFile", dukio_writefile, 2},
+	{ NULL, NULL, 0}
+};
+
 /* NOTE: finalizer will be called for stdin and stdout */
 static void dukio_push_std(duk_context *ctx, int index) {
 	dukio_push(ctx, stdin, "in");
@@ -139,26 +270,21 @@ static void dukio_push_std(duk_context *ctx, int index) {
 	duk_put_prop_string(ctx, index, "stdout");
 }
 
-static const duk_function_list_entry dukio_file_prototype[] = {
-	{ "gets", dukio_gets, 0 },
-	{ "puts", dukio_puts, 1},
-	{ NULL, NULL, 0 }
-};
-
 static int dukio_core(duk_context *ctx) {
 	int mod = duk_push_object(ctx);
 
 	/* create prototype */
 	duk_push_object(ctx);
-	duk_push_c_function(ctx, dukio_file_finalizer, 0);
+	duk_push_c_function(ctx, dukio_file_finalizer, 1);
 	duk_set_finalizer(ctx, -2);
 	duk_put_function_list(ctx, -1, dukio_file_prototype);
 	duk_put_global_string(ctx, DUKIOFILE_PROTOTYPE);
 
 	dukio_push_std(ctx, mod);
+	duk_put_function_list(ctx, -1, dukio_module);
 
-	duk_push_c_function(ctx, dukio_open, 2);
-	duk_put_prop_string(ctx, mod, "open");
+	// duk_push_c_function(ctx, dukio_open, 2);
+	// duk_put_prop_string(ctx, mod, "open");
 
 	return mod;
 }
