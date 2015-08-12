@@ -63,3 +63,23 @@ solution "DynamicDuktape"
 
 		files { path.join(DUKPLUS_DIR, 'test-module.c') }
 		links { "duktape" }
+
+	project "glue"
+		kind "ConsoleApp"
+		language "C"
+
+		includedirs { path.join('vendor','srlua-5.3') }
+
+		files { path.join('vendor','srlua-5.3','glue.c') }
+
+	project "srduk"
+		kind "ConsoleApp"
+		language "C"
+
+		includedirs { path.join(DUKTAPE_DIR, 'src'), path.join('vendor','srlua-5.3') }
+
+		files { path.join('src','srduk.c') }
+		links { 'duktape' }
+
+
+	

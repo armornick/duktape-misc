@@ -6,7 +6,7 @@ ifndef config
 endif
 export config
 
-PROJECTS := duktape duktape-hello duk loadlib-test test-module
+PROJECTS := duktape duktape-hello duk loadlib-test test-module glue srduk
 
 .PHONY: all clean help $(PROJECTS)
 
@@ -32,12 +32,22 @@ test-module: duktape
 	@echo "==== Building test-module ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f test-module.make
 
+glue: 
+	@echo "==== Building glue ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f glue.make
+
+srduk: duktape
+	@echo "==== Building srduk ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f srduk.make
+
 clean:
 	@${MAKE} --no-print-directory -C . -f duktape.make clean
 	@${MAKE} --no-print-directory -C . -f duktape-hello.make clean
 	@${MAKE} --no-print-directory -C . -f duk.make clean
 	@${MAKE} --no-print-directory -C . -f loadlib-test.make clean
 	@${MAKE} --no-print-directory -C . -f test-module.make clean
+	@${MAKE} --no-print-directory -C . -f glue.make clean
+	@${MAKE} --no-print-directory -C . -f srduk.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -53,5 +63,7 @@ help:
 	@echo "   duk"
 	@echo "   loadlib-test"
 	@echo "   test-module"
+	@echo "   glue"
+	@echo "   srduk"
 	@echo ""
 	@echo "For more information, see http://industriousone.com/premake/quick-start"
