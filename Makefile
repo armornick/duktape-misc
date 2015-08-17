@@ -6,7 +6,7 @@ ifndef config
 endif
 export config
 
-PROJECTS := duktape duktape-hello duk loadlib-test test-module glue srduk
+PROJECTS := duktape duktape-hello duk loadlib-test test-module embed-js-module-test glue srduk
 
 .PHONY: all clean help $(PROJECTS)
 
@@ -32,6 +32,10 @@ test-module: duktape
 	@echo "==== Building test-module ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f test-module.make
 
+embed-js-module-test: duktape
+	@echo "==== Building embed-js-module-test ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f embed-js-module-test.make
+
 glue: 
 	@echo "==== Building glue ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f glue.make
@@ -46,6 +50,7 @@ clean:
 	@${MAKE} --no-print-directory -C . -f duk.make clean
 	@${MAKE} --no-print-directory -C . -f loadlib-test.make clean
 	@${MAKE} --no-print-directory -C . -f test-module.make clean
+	@${MAKE} --no-print-directory -C . -f embed-js-module-test.make clean
 	@${MAKE} --no-print-directory -C . -f glue.make clean
 	@${MAKE} --no-print-directory -C . -f srduk.make clean
 
@@ -63,6 +68,7 @@ help:
 	@echo "   duk"
 	@echo "   loadlib-test"
 	@echo "   test-module"
+	@echo "   embed-js-module-test"
 	@echo "   glue"
 	@echo "   srduk"
 	@echo ""

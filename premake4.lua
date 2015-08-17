@@ -64,6 +64,16 @@ solution "DynamicDuktape"
 		files { path.join(DUKPLUS_DIR, 'test-module.c') }
 		links { "duktape" }
 
+	project "embed-js-module-test"
+		kind "SharedLib"
+		language "C"
+		targetname "jstest"
+
+		includedirs { path.join(DUKTAPE_DIR, 'src') }
+
+		files { path.join(DUKPLUS_DIR, 'embed-js-module.c') }
+		links { "duktape" }
+
 	project "glue"
 		kind "ConsoleApp"
 		language "C"

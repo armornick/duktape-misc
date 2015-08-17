@@ -1,11 +1,18 @@
 var module = $loadlib("test")
+var jstest = $loadlib("jstest")()
 var test = module()
+var name = jstest.name
 
 print("test module:" + !!(test))
 // print(Duktape.enc('jx', test))
 
+print("jstest module:" + !!(jstest))
+// print(Duktape.enc('jx', jstest))
+
 print("io module:" + !!(io))
 // print(Duktape.enc('jx', io))
+
+print("THE NAME IS "+name)
 
 print('-------------------------------------------')
 
@@ -62,6 +69,7 @@ print("file length: " + contents.toString().length)
 
 // --------------------------------------------------------
 
+/*
 var FILENAME = "test.txt"
 
 if (io.exists(FILENAME)) {
@@ -73,3 +81,13 @@ if (io.exists(FILENAME)) {
 var contents = io.readFile(FILENAME)
 print(FILENAME + ': ' + contents.toString().length + " bytes")
 print(contents.toString())
+*/
+
+// --------------------------------------------------------
+
+if (empty) {
+	var test_obj = { msg: "there is no spoon!", friday: true, jiggles: null }
+	print("test_obj before calling empty: "+Duktape.enc('jx', test_obj))
+	empty(test_obj)
+	print("test_obj after calling empty: "+Duktape.enc('jx', test_obj))
+}
