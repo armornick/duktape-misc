@@ -85,9 +85,45 @@ print(contents.toString())
 
 // --------------------------------------------------------
 
+/*
 if (empty) {
 	var test_obj = { msg: "there is no spoon!", friday: true, jiggles: null }
 	print("test_obj before calling empty: "+Duktape.enc('jx', test_obj))
 	empty(test_obj)
 	print("test_obj after calling empty: "+Duktape.enc('jx', test_obj))
+}
+print('-------------------------------------------')
+*/
+
+// --------------------------------------------------------
+
+var _INTERNAL = {
+	inter: 'exports.value = "Hello, World!"'
+}
+
+Duktape.modSearch = function (id, require, exports, module) {
+	
+	if (_INTERNAL[id]) return _INTERNAL[id]
+
+	var filename = id+'.js'
+	if (io.exists(filename)) {
+		var contents = io.readFile(filename).toString()
+		return contents
+	}
+
+	throw new Error('cannot find module: ' + id);
+}
+
+
+print('modLoaded = ' + Duktape.enc('jx',Duktape.modLoaded))
+
+var mod = require('lol')
+var inter = require('inter')
+
+print('modLoaded = ' + Duktape.enc('jx',Duktape.modLoaded))
+
+if (!mod) { print('could not load lol :(') }
+else { 
+	print('lol = ' + Duktape.enc('jx',mod) + '\n')
+	mod.hello('Bob') 
 }

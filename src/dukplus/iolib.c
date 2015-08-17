@@ -104,7 +104,7 @@ static duk_ret_t dukio_open(duk_context *ctx) {
 		}
 	} else {
 		/* open as readable by default */
-		filemode = "r";
+		filemode = "rb";
 	}
 
 	FILE *f = fopen(filename, filemode);
@@ -210,7 +210,7 @@ static duk_ret_t dukio_getc(duk_context *ctx) {
 
 static duk_ret_t dukio_readfile(duk_context *ctx) {
 	const char *filename = duk_require_string(ctx, 0);
-	FILE *f = fopen(filename, "r");
+	FILE *f = fopen(filename, "rb");
 
 	fseek(f, 0, SEEK_END);
 	long size = ftell(f);
@@ -224,7 +224,7 @@ static duk_ret_t dukio_readfile(duk_context *ctx) {
 
 static duk_ret_t dukio_writefile(duk_context *ctx) {
 	const char *filename = duk_require_string(ctx, 0);
-	FILE *f = fopen(filename, "w+");
+	FILE *f = fopen(filename, "wb+");
 	
 	if (duk_is_buffer(ctx, 1)) {
 		
