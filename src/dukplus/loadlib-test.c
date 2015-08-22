@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include "duktape.h"
 
-#define CLIBS		"$$CLIBS"
-
-duk_ret_t duk_loadlib (duk_context *ctx);
+void register_mod_search(duk_context *ctx);
 void register_dukio(duk_context *ctx);
 
 void prepare_duk_env(duk_context *ctx);
@@ -54,13 +52,7 @@ duk_ret_t empty_object(duk_context *ctx) {
 }
 
 void prepare_duk_env(duk_context *ctx) {
-	duk_get_global_string(ctx, "Duktape");
-    duk_push_object(ctx); 
-  	duk_put_prop_string(ctx, -2, CLIBS);
-
-    duk_push_global_object(ctx);
-    duk_push_c_function(ctx, duk_loadlib, 1 /*nargs*/);
-    duk_put_prop_string(ctx, -2, "$loadlib");
+    register_mod_search(ctx);
 
     duk_push_global_object(ctx);
     duk_push_c_function(ctx, empty_object, 1 /*nargs*/);

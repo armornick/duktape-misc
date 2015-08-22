@@ -1,6 +1,5 @@
-var module = $loadlib("test")
-var jstest = $loadlib("jstest")()
-var test = module()
+var jstest = require("jstest")
+var test = require("test")
 var name = jstest.name
 
 print("test module:" + !!(test))
@@ -97,21 +96,8 @@ print('-------------------------------------------')
 
 // --------------------------------------------------------
 
-var _INTERNAL = {
+package.preload = {
 	inter: 'exports.value = "Hello, World!"'
-}
-
-Duktape.modSearch = function (id, require, exports, module) {
-	
-	if (_INTERNAL[id]) return _INTERNAL[id]
-
-	var filename = id+'.js'
-	if (io.exists(filename)) {
-		var contents = io.readFile(filename).toString()
-		return contents
-	}
-
-	throw new Error('cannot find module: ' + id);
 }
 
 
@@ -125,5 +111,6 @@ print('modLoaded = ' + Duktape.enc('jx',Duktape.modLoaded))
 if (!mod) { print('could not load lol :(') }
 else { 
 	print('lol = ' + Duktape.enc('jx',mod) + '\n')
+	print(inter.value)
 	mod.hello('Bob') 
 }
