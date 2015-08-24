@@ -38,3 +38,7 @@ print("shell? ", os.execute())
 print('where notepad?')
 print("result: ", os.execute('where notepad'))
 print("USERPROFILE: ", os.getenv('USERPROFILE'))
+
+print('exiting program')
+os.exit(true, true)
+print('program did not exit!')
