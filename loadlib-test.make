@@ -44,6 +44,7 @@ endif
 OBJECTS := \
 	$(OBJDIR)/loadlib.o \
 	$(OBJDIR)/iolib.o \
+	$(OBJDIR)/oslib.o \
 	$(OBJDIR)/loadlib-test.o \
 
 RESOURCES := \
@@ -109,6 +110,10 @@ $(OBJDIR)/loadlib.o: src/dukplus/loadlib.c
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 $(OBJDIR)/iolib.o: src/dukplus/iolib.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/oslib.o: src/dukplus/oslib.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

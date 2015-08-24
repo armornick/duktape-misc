@@ -3,6 +3,7 @@
 
 void register_mod_search(duk_context *ctx);
 void register_dukio(duk_context *ctx);
+void register_dukos(duk_context *ctx);
 
 void prepare_duk_env(duk_context *ctx);
 
@@ -59,4 +60,5 @@ void prepare_duk_env(duk_context *ctx) {
     duk_put_prop_string(ctx, -2, "empty");
 
     register_dukio(ctx);
+    register_dukos(ctx);
 }
