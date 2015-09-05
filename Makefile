@@ -6,7 +6,7 @@ ifndef config
 endif
 export config
 
-PROJECTS := duktape duktape-hello duk loadlib-test test-module embed-js-module-test glue srduk
+PROJECTS := duktape duktape-hello duk loadlib-test test-module embed-js-module-test glue srduk duknode
 
 .PHONY: all clean help $(PROJECTS)
 
@@ -44,6 +44,10 @@ srduk: duktape
 	@echo "==== Building srduk ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f srduk.make
 
+duknode: duktape
+	@echo "==== Building duknode ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f duknode.make
+
 clean:
 	@${MAKE} --no-print-directory -C . -f duktape.make clean
 	@${MAKE} --no-print-directory -C . -f duktape-hello.make clean
@@ -53,6 +57,7 @@ clean:
 	@${MAKE} --no-print-directory -C . -f embed-js-module-test.make clean
 	@${MAKE} --no-print-directory -C . -f glue.make clean
 	@${MAKE} --no-print-directory -C . -f srduk.make clean
+	@${MAKE} --no-print-directory -C . -f duknode.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -71,5 +76,6 @@ help:
 	@echo "   embed-js-module-test"
 	@echo "   glue"
 	@echo "   srduk"
+	@echo "   duknode"
 	@echo ""
 	@echo "For more information, see http://industriousone.com/premake/quick-start"
