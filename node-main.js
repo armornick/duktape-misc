@@ -70,11 +70,15 @@ fs.readFile('main.js', function (err, data) {
 		console.log('File successfully copied.');
 	});
 });
-
 */
+
+var inStream = fs.createReadStream('main.js')
+console.log(inStream.read().toString())
+
 
 // ------------------------------------------------------------
 
+/*
 var path = require('path')
 
 console.log(path.normalize('./lol.js'))
@@ -94,3 +98,4 @@ console.log(path.extname('index.'))
 console.log(path.extname('index'))
 console.log('foo\\bar\\baz'.split(path.sep))
 console.log(process.cwd().split(path.sep))
+*/

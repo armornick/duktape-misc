@@ -681,6 +681,34 @@ static duk_ret_t dfs_appendfile_sync(duk_context *ctx) {
 	return 1;
 }
 
+static duk_ret_t dfs_create_read_stream(duk_context *ctx) {
+	const char *path = duk_require_string(ctx, 0);
+	FILE *inputf = NULL;
+
+	inputf = fopen(path, "rb");
+	if (inputf == NULL) {
+		duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not open file %s: %s", path, strerror(errno));
+		return -1;
+	}
+
+	push_difstream(ctx, inputf);
+	return 1;
+}
+
+static duk_ret_t dfs_create_write_stream(duk_context *ctx) {
+	const char *path = duk_require_string(ctx, 0);
+	FILE *outputf = NULL;
+
+	outputf = fopen(path, "wb");
+	if (outputf == NULL) {
+		duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not open file %s: %s", path, strerror(errno));
+		return -1;
+	}
+
+	push_dofstream(ctx, outputf);
+	return 1;
+}
+
 /*
 ------------------------------------------------------------------------------------
 */
@@ -708,6 +736,8 @@ static const duk_function_list_entry dfs_module[] = {
 	{ "writeFileSync", dfs_writefile_sync, 2 },
 	{ "appendFile", dfs_appendfile, 3 },
 	{ "appendFileSync", dfs_appendfile_sync, 2 },
+	{ "createReadStream", dfs_create_read_stream, 1 },
+	{ "createWriteStream", dfs_create_write_stream, 1 },
 	{ NULL, NULL, 0}
 };
 

@@ -78,8 +78,6 @@ Based on the Foundation Library (see: https://github.com/rampantpixels/foundatio
 	#include <unistd.h>
 	#include <limits.h>
 
-
-
 #endif
 
 /* max path string length */
