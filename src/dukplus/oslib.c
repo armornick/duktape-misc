@@ -121,6 +121,8 @@ DLL_EXPORT duk_ret_t dukopen_os(duk_context *ctx) {
 void register_dukos(duk_context *ctx) {
 	dukos_core(ctx);
 	duk_put_global_string(ctx, "os");
+
+	duk_eval_string_noresult(ctx, "Duktape.modLoaded['os'] = os");
 }
 
 #endif

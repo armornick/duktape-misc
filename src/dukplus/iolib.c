@@ -320,6 +320,8 @@ DLL_EXPORT duk_ret_t dukopen_io(duk_context *ctx) {
 void register_dukio(duk_context *ctx) {
 	dukio_core(ctx);
 	duk_put_global_string(ctx, "io");
+
+	duk_eval_string_noresult(ctx, "Duktape.modLoaded['io'] = io");
 }
 
 #endif
