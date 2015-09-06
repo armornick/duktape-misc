@@ -48,6 +48,7 @@ OBJECTS := \
 	$(OBJDIR)/dprocess.o \
 	$(OBJDIR)/dos.o \
 	$(OBJDIR)/dfs.o \
+	$(OBJDIR)/dpath.o \
 	$(OBJDIR)/main.o \
 
 RESOURCES := \
@@ -129,6 +130,10 @@ $(OBJDIR)/dos.o: src/duk-node/dos.c
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 $(OBJDIR)/dfs.o: src/duk-node/dfs.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/dpath.o: src/duk-node/dpath.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

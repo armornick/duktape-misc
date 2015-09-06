@@ -116,4 +116,9 @@ void preload_dos(duk_context *ctx);
 void register_dfs(duk_context *ctx);
 void preload_dfs(duk_context *ctx);
 
+/*
+path module (only available for preloading)
+*/
+void preload_dpath(duk_context *ctx);
+
 #endif 

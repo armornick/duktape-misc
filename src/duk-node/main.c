@@ -65,6 +65,7 @@ static void prepare_duk_env(duk_context *ctx) {
 
 	preload_dos(ctx);
 	preload_dfs(ctx);
+	preload_dpath(ctx);
 }
 
 static void duknode_push_argv(duk_context *ctx, int argc, const char *argv[]) {

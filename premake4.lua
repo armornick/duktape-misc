@@ -107,6 +107,7 @@ solution "DynamicDuktape"
 
 		files { path.join(DUKPLUS_DIR, 'loadlib.c'), path.join(DUKNODE_DIR, 'dfstream.c'), path.join(DUKNODE_DIR, 'dconsole.c'),
 			path.join(DUKNODE_DIR, 'dprocess.c'), path.join(DUKNODE_DIR, 'dos.c'), path.join(DUKNODE_DIR, 'dfs.c'), 
+			path.join(DUKNODE_DIR, 'dpath.c'), 
 			path.join(DUKNODE_DIR, 'main.c') }
 		links { "duktape" }
 
