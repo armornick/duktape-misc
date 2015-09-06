@@ -2,6 +2,11 @@
 Process object for Duktape.
 Implements a subset of the process object of Node.js
 see: https://nodejs.org/api/process.html
+
+Notes:
+
+* depends on dfstream.c
+
 */
 
 #include "duknode.h"

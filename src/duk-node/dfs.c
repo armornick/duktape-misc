@@ -1,7 +1,13 @@
 /*
-OS module for Duktape.
-Implements a subset of the os module of Node.js
-see: https://nodejs.org/api/os.html
+Filesystem module for Duktape.
+Implements a subset of the fs module of Node.js
+see: https://nodejs.org/api/fs.html
+
+Implementation notes:
+
+* access(2) is discouraged in the POSIX man page so I might not implement fs.access 
+* fs.exists is deprecated so I probably won't implement it
+
 */
 
 #include "duknode.h"
