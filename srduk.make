@@ -24,7 +24,7 @@ ifeq ($(config),release)
   TARGETDIR  = build
   TARGET     = $(TARGETDIR)/srduk.exe
   DEFINES   +=
-  INCLUDES  += -Ivendor/duktape-1.2.2/src -Ivendor/srlua-5.3
+  INCLUDES  += -Ivendor/duktape-1.3.0/src -Ivendor/srlua-5.3
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)

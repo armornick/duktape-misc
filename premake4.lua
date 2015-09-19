@@ -8,7 +8,7 @@ solution "DynamicDuktape"
 		flags {'Optimize'}
 
 	-- constants
-	local DUKTAPE_DIR = path.join('vendor','duktape-1.2.2')
+	local DUKTAPE_DIR = path.join('vendor','duktape-1.3.0')
 	local DUKPLUS_DIR = path.join('src','dukplus')
 	local DUKNODE_DIR = path.join('src','duk-node')
 
