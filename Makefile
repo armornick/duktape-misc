@@ -6,7 +6,7 @@ ifndef config
 endif
 export config
 
-PROJECTS := duktape duktape-hello duk loadlib-test test-module embed-js-module-test glue srduk duknode
+PROJECTS := duktape duktape-hello duk loadlib-test test-module embed-js-module-test glue srduk duknode zlib minizip dukzip
 
 .PHONY: all clean help $(PROJECTS)
 
@@ -48,6 +48,18 @@ duknode: duktape
 	@echo "==== Building duknode ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f duknode.make
 
+zlib: 
+	@echo "==== Building zlib ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f zlib.make
+
+minizip: 
+	@echo "==== Building minizip ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f minizip.make
+
+dukzip: duktape minizip zlib
+	@echo "==== Building dukzip ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f dukzip.make
+
 clean:
 	@${MAKE} --no-print-directory -C . -f duktape.make clean
 	@${MAKE} --no-print-directory -C . -f duktape-hello.make clean
@@ -58,6 +70,9 @@ clean:
 	@${MAKE} --no-print-directory -C . -f glue.make clean
 	@${MAKE} --no-print-directory -C . -f srduk.make clean
 	@${MAKE} --no-print-directory -C . -f duknode.make clean
+	@${MAKE} --no-print-directory -C . -f zlib.make clean
+	@${MAKE} --no-print-directory -C . -f minizip.make clean
+	@${MAKE} --no-print-directory -C . -f dukzip.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -77,5 +92,8 @@ help:
 	@echo "   glue"
 	@echo "   srduk"
 	@echo "   duknode"
+	@echo "   zlib"
+	@echo "   minizip"
+	@echo "   dukzip"
 	@echo ""
 	@echo "For more information, see http://industriousone.com/premake/quick-start"
