@@ -44,7 +44,7 @@ Heavily based on the loadlib.c file of Lua 5.2.3.
 #endif
 
 #if !defined(DUK_PATH_DEFAULT)
-#define DUK_PATH_DEFAULT "./?.js"
+#define DUK_PATH_DEFAULT "./?;./?.js"
 #endif
 
 #if !defined(DUK_CPATH)
