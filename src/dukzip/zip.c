@@ -176,6 +176,30 @@ static duk_ret_t dukzip_unz_getfileinfo(duk_context *ctx) {
 	duk_put_prop_string(ctx, info_obj, "comment");
 }
 
+static duk_ret_t dukzip_unz_readfile(duk_context *ctx) {
+	unz_file_info fileInfo;
+	unzFile archive = dukzip_unz_from_this(ctx);
+	int ret = UNZ_OK;
+
+	unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
+	void *bytes = duk_push_fixed_buffer(ctx, fileInfo.uncompressed_size);
+
+	ret = unzOpenCurrentFile(archive);
+	if (ret != UNZ_OK) {
+		duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "unable to open file in archive");
+		return -1;
+	}
+
+	ret = unzReadCurrentFile(archive, bytes, fileInfo.uncompressed_size);
+	if (ret < 0) {
+		duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "unable to read file in archive");
+		return -1;
+	}
+	unzCloseCurrentFile(archive);
+
+	return 1;
+}
+
 
 /* ---------------------------------------------------------- */
 
@@ -218,6 +242,7 @@ static const duk_function_list_entry dukzip_unz_prototype[] = {
 	{ "getFile", dukzip_unz_getfile, 1 },
 	{ "getFileName", dukzip_unz_getfilename, 0 },
 	{ "getFileInfo", dukzip_unz_getfileinfo, 0 },
+	{ "readFile", dukzip_unz_readfile, 0 },
 	{ NULL, NULL, 0 }
 };
 
