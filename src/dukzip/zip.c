@@ -200,13 +200,120 @@ static duk_ret_t dukzip_unz_readfile(duk_context *ctx) {
 	return 1;
 }
 
+/* ---------------------------------------------------------- */
+
+static zipFile dukzip_require_zip(duk_context *ctx, int index) {
+	zipFile result;
+
+	duk_get_prop_string(ctx, index, ZIPHANDLE_PROP);
+	result = duk_get_pointer(ctx, -1);
+	duk_pop(ctx);
+	if (!result) {
+		duk_error(ctx, DUK_ERR_TYPE_ERROR, "Expected dukzip archive at index %d", index);
+		return NULL;
+	}
+
+	return result;
+}
+
+static zipFile dukzip_zip_from_this(duk_context *ctx) {
+	zipFile f;
+	duk_push_this(ctx);
+	f = dukzip_require_unz(ctx, -1);
+	duk_pop(ctx);
+	return f;
+}
+
+static void dukzip_push_zipfile(duk_context *ctx, zipFile archive, const char *filename) {
+	/* create object with readable Dukzip archive prototype */
+	duk_push_object(ctx);
+	duk_get_global_string(ctx, DUKZIP_ZIP_PROTOTYPE);
+	duk_set_prototype(ctx, -2);
+
+	/* set the archive pointer data */
+	duk_push_pointer(ctx, archive);
+	duk_put_prop_string(ctx, -2, ZIPHANDLE_PROP);
+
+	/* set path property */
+	duk_push_string(ctx, filename);
+	duk_put_prop_string(ctx, -2, ZIPFILENAME_PROP);
+}
+
+static duk_ret_t dukzip_zip_finalizer(duk_context *ctx) {
+	zipFile archive = dukzip_require_zip(ctx, 0);
+	zipClose(archive, "");
+
+	return 0;
+}
+
+/* ---------------------------------------------------------- */
+
+static duk_ret_t dukzip_zip_newfile(duk_context *ctx) {
+	zip_fileinfo zi = {0};
+	int res = ZIP_OK;
+	zipFile archive = dukzip_zip_from_this(ctx);
+	const char *filename = duk_require_string(ctx, 0);
+
+	res = zipOpenNewFileInZip(archive, filename, &zi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+
+	if (res == ZIP_OK) {
+		duk_push_true(ctx);
+	} else {
+		duk_push_false(ctx);
+	}
+	return 1;
+}
+
+static duk_ret_t dukzip_zip_write(duk_context *ctx) {
+	int res = ZIP_OK;
+	zipFile archive = dukzip_zip_from_this(ctx);
+
+	if (duk_is_string(ctx, 0)) {
+
+		int outputl = 0;
+		const char *output = duk_get_lstring(ctx, 0, &outputl);
+
+		res = zipWriteInFileInZip(archive, output, outputl);
+
+	} else if (duk_is_buffer(ctx, 0)) {
+
+		int outputl = 0;
+		void *output = duk_get_buffer(ctx, 0, &outputl);
+
+		res = zipWriteInFileInZip(archive, output, outputl);
+
+	} else {
+		duk_error(ctx, DUK_ERR_TYPE_ERROR, "unable to write argument to zip file (supported types: string, buffer)");
+		return -1;
+	}
+
+	if (res == ZIP_OK) {
+		duk_push_true(ctx);
+	} else {
+		duk_push_false(ctx);
+	}
+	return 1;
+}
+
+static duk_ret_t dukzip_zip_close(duk_context *ctx) {
+	int res = ZIP_OK;
+	zipFile archive = dukzip_zip_from_this(ctx);
+
+	res = zipCloseFileInZip(archive);
+
+	if (res == ZIP_OK) {
+		duk_push_true(ctx);
+	} else {
+		duk_push_false(ctx);
+	}
+	return 1;
+}
 
 /* ---------------------------------------------------------- */
 
 static duk_ret_t dukzip_open(duk_context *ctx) {
 	const char *filename = duk_require_string(ctx, 0);
 	const char *filemode;
-	unzFile archive;
 
 	if (duk_is_string(ctx, 1)) {
 		filemode = duk_require_string(ctx, 1);
@@ -215,6 +322,8 @@ static duk_ret_t dukzip_open(duk_context *ctx) {
 	}
 
 	if (filemode[0] == 'r') {
+
+		unzFile archive;
 
 		archive = unzOpen(filename);
 		if (archive == NULL) {
@@ -226,7 +335,15 @@ static duk_ret_t dukzip_open(duk_context *ctx) {
 
 	} else if (filemode[0] == 'w') {
 
-		duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "writable zip files not implemented yet");
+		zipFile archive;
+
+		archive = zipOpen(filename, APPEND_STATUS_CREATE);
+		if (archive == NULL) {
+			duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not open file '%s'", filename);
+		}
+
+		dukzip_push_zipfile(ctx, archive, filename);
+		return 1;
 
 	} else {
 		duk_error(ctx, DUK_ERR_TYPE_ERROR, "%s is not a valid file mode (valid modes: 'r' or 'w')", filemode);
@@ -246,6 +363,13 @@ static const duk_function_list_entry dukzip_unz_prototype[] = {
 	{ NULL, NULL, 0 }
 };
 
+static const duk_function_list_entry dukzip_zip_prototype[] = {
+	{ "open", dukzip_zip_newfile, 1 },
+	{ "write", dukzip_zip_write, 1 },
+	{ "close", dukzip_zip_close, 0 },
+	{ NULL, NULL, 0 }
+};
+
 static const duk_function_list_entry dukzip_module[] = {
 	{ "open", dukzip_open, 2 },
 	{ NULL, NULL, 0}
@@ -261,6 +385,13 @@ static int dukzip_core(duk_context *ctx) {
 	duk_set_finalizer(ctx, -2);
 	duk_put_function_list(ctx, -1, dukzip_unz_prototype);
 	duk_put_global_string(ctx, DUKZIP_UNZ_PROTOTYPE);
+
+	/* create writable archive prototype */
+	duk_push_object(ctx);
+	duk_push_c_function(ctx, dukzip_zip_finalizer, 1);
+	duk_set_finalizer(ctx, -2);
+	duk_put_function_list(ctx, -1, dukzip_zip_prototype);
+	duk_put_global_string(ctx, DUKZIP_ZIP_PROTOTYPE);
 
 	duk_put_function_list(ctx, -1, dukzip_module);
 	return mod;
