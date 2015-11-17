@@ -78,11 +78,14 @@ static duk_ret_t dukzip_unz_listfiles(duk_context *ctx) {
 	duk_idx_t arr_idx = duk_push_array(ctx);
 
 	do {
-		unz_file_info fileInfo;
-		unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
+		// unz_file_info fileInfo;
+		// unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
+		unz_file_info64 fileInfo;
+		unzGetCurrentFileInfo64(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
 
 		char fileName[fileInfo.size_filename];
-		unzGetCurrentFileInfo(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
+		// unzGetCurrentFileInfo(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
+		unzGetCurrentFileInfo64(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
 
 		duk_push_lstring(ctx, fileName, fileInfo.size_filename);
 		duk_put_prop_index(ctx, arr_idx, i++);
@@ -132,13 +135,16 @@ static duk_ret_t dukzip_unz_getfile(duk_context *ctx) {
 }
 
 static duk_ret_t dukzip_unz_getfilename(duk_context *ctx) {
-	unz_file_info fileInfo;
+	// unz_file_info fileInfo;
+	unz_file_info64 fileInfo;
 	unzFile archive = dukzip_unz_from_this(ctx);
 
-	unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
+	// unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
+	unzGetCurrentFileInfo64(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
 
 	char fileName[fileInfo.size_filename];
-	unzGetCurrentFileInfo(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
+	// unzGetCurrentFileInfo(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
+	unzGetCurrentFileInfo64(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
 
 	duk_push_lstring(ctx, fileName, fileInfo.size_filename);
 	return 1;
@@ -146,14 +152,21 @@ static duk_ret_t dukzip_unz_getfilename(duk_context *ctx) {
 
 static duk_ret_t dukzip_unz_getfileinfo(duk_context *ctx) {
 	duk_idx_t info_obj;
-	unz_file_info fileInfo;
+	// unz_file_info fileInfo;
+	unz_file_info64 fileInfo;
 	unzFile archive = dukzip_unz_from_this(ctx);
 
-	unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
+	// unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
+	unzGetCurrentFileInfo64(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
 	char fileName[fileInfo.size_filename], 
 		extraField[fileInfo.size_file_extra], 
 		commentString[fileInfo.size_file_comment];
-	unzGetCurrentFileInfo(archive, &fileInfo, 
+
+	// unzGetCurrentFileInfo(archive, &fileInfo, 
+	// 	fileName, fileInfo.size_filename,
+	// 	extraField, fileInfo.size_file_extra,
+	// 	commentString, fileInfo.size_file_comment);
+	unzGetCurrentFileInfo64(archive, &fileInfo, 
 		fileName, fileInfo.size_filename,
 		extraField, fileInfo.size_file_extra,
 		commentString, fileInfo.size_file_comment);
@@ -248,13 +261,82 @@ static duk_ret_t dukzip_zip_finalizer(duk_context *ctx) {
 
 /* ---------------------------------------------------------- */
 
+/*
+utility method to inspect an options object. 
+*/
+
+static void dukzip_zip_checkoptions(duk_context *ctx, duk_idx_t idx, const char **filename, duk_int_t *level, duk_int_t *method, const char **comment) 
+{
+	duk_get_prop_string(ctx, idx, "filename");
+	if (duk_is_string(ctx, -1)) {
+		*filename = duk_get_string(ctx, -1);
+		duk_pop(ctx);
+	} else {
+		duk_pop(ctx);
+	}
+
+	duk_get_prop_string(ctx, idx, "level");
+	if (duk_is_number(ctx, -1)) {
+		*level = duk_get_int(ctx, -1);
+		duk_pop(ctx);
+	} else {
+		duk_pop(ctx);
+	}
+
+	duk_get_prop_string(ctx, idx, "method");
+	if (duk_is_string(ctx, -1)) {
+		duk_push_string(ctx, "deflate");
+		if (duk_equals(ctx, -1, -2)) {
+			*method = Z_DEFLATED;
+		} else {
+			duk_pop(ctx);
+			duk_push_string(ctx, "store");
+			if (duk_equals(ctx, -1, -2)) {
+				*method = 0;
+			}
+		}
+		duk_pop_2(ctx);
+	} else {
+		duk_pop(ctx);
+	}
+
+	duk_get_prop_string(ctx, idx, "comment");
+	if (duk_is_string(ctx, -1)) {
+		*comment = duk_get_string(ctx, -1);
+		duk_pop(ctx);
+	} else {
+		duk_pop(ctx);
+	}
+}
+
+/*
+Low-level file writing
+
+USAGE: newFile to create file in zip, write to add data to file, close to finish writing
+*/
+
 static duk_ret_t dukzip_zip_newfile(duk_context *ctx) {
 	zip_fileinfo zi = {0};
 	int res = ZIP_OK;
 	zipFile archive = dukzip_zip_from_this(ctx);
-	const char *filename = duk_require_string(ctx, 0);
+	
+	const char *filename = "";
+	duk_int_t level = Z_DEFAULT_COMPRESSION;
+	duk_int_t method = Z_DEFLATED;
+	const char *comment = "";
 
-	res = zipOpenNewFileInZip(archive, filename, &zi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+
+	if (duk_is_object(ctx, 0)) {
+		dukzip_zip_checkoptions(ctx, 0, &filename, &level, &method, &comment);
+	} else {
+		filename = duk_require_string(ctx, 0);
+
+		if (duk_is_number(ctx, 1)) {
+			level = duk_get_int(ctx, 1);
+		}
+	}
+
+	res = zipOpenNewFileInZip64(archive, filename, &zi, NULL, 0, NULL, 0, comment, method, level, 1);
 
 	if (res == ZIP_OK) {
 		duk_push_true(ctx);
@@ -275,10 +357,10 @@ static duk_ret_t dukzip_zip_write(duk_context *ctx) {
 
 		res = zipWriteInFileInZip(archive, output, outputl);
 
-	} else if (duk_is_buffer(ctx, 0)) {
+	} else if (duk_is_buffer(ctx, 0) || duk_is_object(ctx, 0)) {
 
 		int outputl = 0;
-		void *output = duk_get_buffer(ctx, 0, &outputl);
+		void *output = duk_require_buffer_data(ctx, 0, &outputl);
 
 		res = zipWriteInFileInZip(archive, output, outputl);
 
@@ -309,6 +391,90 @@ static duk_ret_t dukzip_zip_close(duk_context *ctx) {
 	return 1;
 }
 
+/*
+High-level single-step file adding
+
+If the first argument is an object, the data property should contain the data to
+write to the zip.
+
+Otherwise, first argument is filename, second argument is the data, optional third
+argument is the compression level.
+*/
+
+static duk_ret_t dukzip_zip_add(duk_context *ctx) {
+	zip_fileinfo zi = {0};
+	int res = ZIP_OK;
+	zipFile archive = dukzip_zip_from_this(ctx);
+	
+	const char *filename = "";
+	duk_int_t level = Z_DEFAULT_COMPRESSION;
+	duk_int_t method = Z_DEFLATED;
+	const char *comment = "";
+
+	int datalen = 0;
+	void *data = NULL;
+
+	if (duk_is_object(ctx, 0)) {
+		dukzip_zip_checkoptions(ctx, 0, &filename, &level, &method, &comment);
+
+		duk_get_prop_string(ctx, 0, "data");
+		if (duk_is_string(ctx, -1)) {
+			data = (void *)duk_get_lstring(ctx, -1, &datalen);
+		} else if (duk_is_buffer(ctx, -1) || duk_is_object(ctx, -1)) {
+			data = duk_require_buffer_data(ctx, -1, &datalen);
+		} else {
+			duk_error(ctx, DUK_ERR_TYPE_ERROR, "unable to write data to zip file (supported types: string, buffer)");
+			return -1;
+		}
+
+	} else {
+		filename = duk_require_string(ctx, 0);
+
+		if (duk_is_string(ctx, 1)) {
+			data = (void *)duk_get_lstring(ctx, 1, &datalen);
+		} else if (duk_is_buffer(ctx, 1) || duk_is_object(ctx, 1)) {
+			data = duk_require_buffer_data(ctx, 1, &datalen);
+		} else {
+			duk_error(ctx, DUK_ERR_TYPE_ERROR, "unable to write argument to zip file (supported types: string, buffer)");
+			return -1;
+		}
+
+		if (duk_is_number(ctx, 2)) {
+			level = duk_get_int(ctx, 2);
+		}
+
+		/* push dummy to normalize stack */
+		duk_push_string(ctx, "dummy");
+	}
+
+	res = zipOpenNewFileInZip64(archive, filename, &zi, NULL, 0, NULL, 0, comment, method, level, 1);
+	if (res != ZIP_OK) {
+		goto error;
+	}
+
+	res = zipWriteInFileInZip(archive, data, datalen);
+	if (res != ZIP_OK) {
+		goto error;
+	}
+
+	res = zipCloseFileInZip(archive);
+	duk_pop(ctx); /* pop buffer (or dummy) from stack */
+
+	if (res == ZIP_OK) {
+		duk_push_true(ctx);
+	} else {
+		duk_push_false(ctx);
+	}
+	return 1;
+
+error:
+	zipCloseFileInZip(archive);
+	duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not write file '%s'", filename);
+	return -1;
+
+}
+
+
 /* ---------------------------------------------------------- */
 
 static duk_ret_t dukzip_open(duk_context *ctx) {
@@ -325,7 +491,7 @@ static duk_ret_t dukzip_open(duk_context *ctx) {
 
 		unzFile archive;
 
-		archive = unzOpen(filename);
+		archive = unzOpen64(filename);
 		if (archive == NULL) {
 			duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not open file '%s'", filename);
 		}
@@ -337,7 +503,7 @@ static duk_ret_t dukzip_open(duk_context *ctx) {
 
 		zipFile archive;
 
-		archive = zipOpen(filename, APPEND_STATUS_CREATE);
+		archive = zipOpen64(filename, APPEND_STATUS_CREATE);
 		if (archive == NULL) {
 			duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not open file '%s'", filename);
 		}
@@ -364,9 +530,10 @@ static const duk_function_list_entry dukzip_unz_prototype[] = {
 };
 
 static const duk_function_list_entry dukzip_zip_prototype[] = {
-	{ "open", dukzip_zip_newfile, 1 },
+	{ "open", dukzip_zip_newfile, 2 },
 	{ "write", dukzip_zip_write, 1 },
 	{ "close", dukzip_zip_close, 0 },
+	{ "add", dukzip_zip_add, 3 },
 	{ NULL, NULL, 0 }
 };
 
