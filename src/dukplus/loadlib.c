@@ -86,6 +86,9 @@ Heavily based on the loadlib.c file of Lua 5.2.3.
 /* table containing the 'preloaded' (internal in the application) modules */
 #define PRELOAD_TABLE "$PRELOAD"
 
+/* handle for dynamic library objects */
+#define DUK_LIB_HANDLE "$data"
+
 
 /*
 ** system-dependent functions
@@ -186,12 +189,28 @@ static void *duk_checkclib (duk_context *ctx, const char *path) {
   return plib;
 }
 
+static duk_ret_t duk_lib_finalizer(duk_context *ctx) {
+  dbg("dynamic library finalizer");
+
+  duk_get_prop_string(ctx, 0, DUK_LIB_HANDLE);
+
+  void *lib = duk_get_pointer(ctx, -1);
+  duk_unloadlib(lib);
+}
+
 
 static void duk_addtoclib (duk_context *ctx, const char *path, void *plib) {
   dbg("adding library to library registry");
   duk_get_global_string(ctx, "package");
   duk_get_prop_string(ctx, -1, CLIBS);
+
+  duk_push_object(ctx);
   duk_push_pointer(ctx, plib);
+  duk_put_prop_string(ctx, -2, DUK_LIB_HANDLE);
+  duk_push_c_function(ctx, duk_lib_finalizer, 1);
+  duk_set_finalizer(ctx, -2);
+  
+
   duk_put_prop_string(ctx, -2, path);  /* CLIBS[path] = plib */
   duk_pop_2(ctx);  /* pop Duktape and CLIBS table */
 }
