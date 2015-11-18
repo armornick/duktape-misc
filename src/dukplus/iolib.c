@@ -226,10 +226,10 @@ static duk_ret_t dukio_writefile(duk_context *ctx) {
 	const char *filename = duk_require_string(ctx, 0);
 	FILE *f = fopen(filename, "wb+");
 	
-	if (duk_is_buffer(ctx, 1)) {
+	if (duk_is_buffer(ctx, 1) || duk_is_object(ctx, 1)) {
 		
 		void *buffer; duk_size_t sz;
-		buffer = duk_get_buffer(ctx, 1, &sz);
+		buffer = duk_require_buffer_data(ctx, 1, &sz);
 		fwrite(buffer, 1, sz, f);
 
 	} else if (duk_is_string(ctx, 1)) {
