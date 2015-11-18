@@ -33,7 +33,18 @@ const duk_function_list_entry test_module_functions[] = {
 	{ NULL, NULL, 0 }
 };
 
+static duk_ret_t my_module_finalizer(duk_context *ctx) {
+    printf("Test Module Finalized\n");
+    return 0;
+}
+
 DLL_EXPORT duk_ret_t dukopen_test (duk_context *ctx) {
+    duk_push_heap_stash(ctx);
+    duk_push_object(ctx);
+    duk_push_c_function(ctx, my_module_finalizer, 1);
+    duk_set_finalizer(ctx, -2);
+    duk_put_prop_string(ctx, -2, "module_armornick_test");
+
 	duk_push_object(ctx);
 	duk_put_function_list(ctx, -1, test_module_functions);
 	return 1;
