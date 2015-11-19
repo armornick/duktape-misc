@@ -6,7 +6,7 @@ ifndef config
 endif
 export config
 
-PROJECTS := duktape duktape-hello duk loadlib-test test-module embed-js-module-test glue srduk duknode zlib minizip dukzip
+PROJECTS := duktape duktape-hello duk dukplus test-module embed-js-module-test glue srduk duknode dukfs zlib minizip dukzip
 
 .PHONY: all clean help $(PROJECTS)
 
@@ -24,9 +24,9 @@ duk: duktape
 	@echo "==== Building duk ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f duk.make
 
-loadlib-test: duktape
-	@echo "==== Building loadlib-test ($(config)) ===="
-	@${MAKE} --no-print-directory -C . -f loadlib-test.make
+dukplus: duktape
+	@echo "==== Building dukplus ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f dukplus.make
 
 test-module: duktape
 	@echo "==== Building test-module ($(config)) ===="
@@ -48,6 +48,10 @@ duknode: duktape
 	@echo "==== Building duknode ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f duknode.make
 
+dukfs: duktape
+	@echo "==== Building dukfs ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f dukfs.make
+
 zlib: 
 	@echo "==== Building zlib ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f zlib.make
@@ -64,12 +68,13 @@ clean:
 	@${MAKE} --no-print-directory -C . -f duktape.make clean
 	@${MAKE} --no-print-directory -C . -f duktape-hello.make clean
 	@${MAKE} --no-print-directory -C . -f duk.make clean
-	@${MAKE} --no-print-directory -C . -f loadlib-test.make clean
+	@${MAKE} --no-print-directory -C . -f dukplus.make clean
 	@${MAKE} --no-print-directory -C . -f test-module.make clean
 	@${MAKE} --no-print-directory -C . -f embed-js-module-test.make clean
 	@${MAKE} --no-print-directory -C . -f glue.make clean
 	@${MAKE} --no-print-directory -C . -f srduk.make clean
 	@${MAKE} --no-print-directory -C . -f duknode.make clean
+	@${MAKE} --no-print-directory -C . -f dukfs.make clean
 	@${MAKE} --no-print-directory -C . -f zlib.make clean
 	@${MAKE} --no-print-directory -C . -f minizip.make clean
 	@${MAKE} --no-print-directory -C . -f dukzip.make clean
@@ -86,12 +91,13 @@ help:
 	@echo "   duktape"
 	@echo "   duktape-hello"
 	@echo "   duk"
-	@echo "   loadlib-test"
+	@echo "   dukplus"
 	@echo "   test-module"
 	@echo "   embed-js-module-test"
 	@echo "   glue"
 	@echo "   srduk"
 	@echo "   duknode"
+	@echo "   dukfs"
 	@echo "   zlib"
 	@echo "   minizip"
 	@echo "   dukzip"

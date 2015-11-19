@@ -50,14 +50,14 @@ solution "DynamicDuktape"
 		links { "duktape" }
 
 	-- Duktape application with require and lua-esque libs
-	project "loadlib-test"
+	project "dukplus"
 		kind "ConsoleApp"
 		language "C"
 
 		includedirs { path.join(DUKTAPE_DIR, 'src') }
 
 		files { path.join(DUKPLUS_DIR, 'loadlib.c'), path.join(DUKPLUS_DIR, 'iolib.c'), path.join(DUKPLUS_DIR, 'oslib.c'),
-			path.join(DUKPLUS_DIR, 'loadlib-test.c') }
+			path.join(DUKPLUS_DIR, 'main.c') }
 		links { "duktape" }
 
 	-- C test module for Duktape
@@ -112,6 +112,18 @@ solution "DynamicDuktape"
 			path.join(DUKNODE_DIR, 'dprocess.c'), path.join(DUKNODE_DIR, 'dos.c'), path.join(DUKNODE_DIR, 'dfs.c'), 
 			path.join(DUKNODE_DIR, 'dpath.c'), 
 			path.join(DUKNODE_DIR, 'main.c') }
+		links { "duktape" }
+
+	-- filesystem module for Duktape
+	project "dukfs"
+		kind "SharedLib"
+		language "C"
+		targetname "dfs"
+
+		includedirs { path.join(DUKTAPE_DIR, 'src'), ZLIB_DIR, MINIZP_DIR }
+
+		files { path.join('src','dukfs','dfs.c') }
+		defines { "BUILD_AS_DLL" }
 		links { "duktape" }
 
 	-- zlib compression library
