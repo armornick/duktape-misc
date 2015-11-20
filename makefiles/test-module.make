@@ -20,17 +20,17 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = obj/release/dukfs
-  TARGETDIR  = build
-  TARGET     = $(TARGETDIR)/dfs.dll
-  DEFINES   += -DBUILD_AS_DLL
-  INCLUDES  += -Ivendor/duktape-1.3.0/src -Ivendor/zlib-1.2.8 -Ivendor/zlib-1.2.8/contrib/minizip
+  OBJDIR     = obj/release/test-module
+  TARGETDIR  = ../build
+  TARGET     = $(TARGETDIR)/test.dll
+  DEFINES   +=
+  INCLUDES  += -I../vendor/duktape-1.3.0/src
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
   ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -Lbuild -s -shared -Wl,--out-implib="build/libdfs.a"
-  LDDEPS    += build/libduktape.a
+  ALL_LDFLAGS   += $(LDFLAGS) -L../build -s -shared -Wl,--out-implib="../build/libtest.a"
+  LDDEPS    += ../build/libduktape.a
   LIBS      += $(LDDEPS)
   LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
@@ -42,7 +42,7 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/dfs.o \
+	$(OBJDIR)/test-module.o \
 
 RESOURCES := \
 
@@ -60,7 +60,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking dukfs
+	@echo Linking test-module
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -81,7 +81,7 @@ else
 endif
 
 clean:
-	@echo Cleaning dukfs
+	@echo Cleaning test-module
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -102,7 +102,7 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/dfs.o: src/dukfs/dfs.c
+$(OBJDIR)/test-module.o: ../src/dukplus/test-module.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

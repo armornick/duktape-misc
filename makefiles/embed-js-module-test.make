@@ -20,17 +20,17 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = obj/release/srduk
-  TARGETDIR  = build
-  TARGET     = $(TARGETDIR)/srduk.exe
+  OBJDIR     = obj/release/embed-js-module-test
+  TARGETDIR  = ../build
+  TARGET     = $(TARGETDIR)/jstest.dll
   DEFINES   +=
-  INCLUDES  += -Ivendor/duktape-1.3.0/src -Ivendor/srlua-5.3
+  INCLUDES  += -I../vendor/duktape-1.3.0/src
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
   ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -Lbuild -s
-  LDDEPS    += build/libduktape.a
+  ALL_LDFLAGS   += $(LDFLAGS) -L../build -s -shared -Wl,--out-implib="../build/libjstest.a"
+  LDDEPS    += ../build/libduktape.a
   LIBS      += $(LDDEPS)
   LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
@@ -42,7 +42,7 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/srduk.o \
+	$(OBJDIR)/embed-js-module.o \
 
 RESOURCES := \
 
@@ -60,7 +60,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking srduk
+	@echo Linking embed-js-module-test
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -81,7 +81,7 @@ else
 endif
 
 clean:
-	@echo Cleaning srduk
+	@echo Cleaning embed-js-module-test
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -102,7 +102,7 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/srduk.o: src/srduk.c
+$(OBJDIR)/embed-js-module.o: ../src/dukplus/embed-js-module.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

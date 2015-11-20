@@ -21,7 +21,7 @@ endif
 
 ifeq ($(config),release)
   OBJDIR     = obj/release/zlib
-  TARGETDIR  = build
+  TARGETDIR  = ../build
   TARGET     = $(TARGETDIR)/libzlib.a
   DEFINES   +=
   INCLUDES  +=
@@ -116,63 +116,63 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/adler32.o: vendor/zlib-1.2.8/adler32.c
+$(OBJDIR)/adler32.o: ../vendor/zlib-1.2.8/adler32.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/compress.o: vendor/zlib-1.2.8/compress.c
+$(OBJDIR)/compress.o: ../vendor/zlib-1.2.8/compress.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/crc32.o: vendor/zlib-1.2.8/crc32.c
+$(OBJDIR)/crc32.o: ../vendor/zlib-1.2.8/crc32.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/deflate.o: vendor/zlib-1.2.8/deflate.c
+$(OBJDIR)/deflate.o: ../vendor/zlib-1.2.8/deflate.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/gzclose.o: vendor/zlib-1.2.8/gzclose.c
+$(OBJDIR)/gzclose.o: ../vendor/zlib-1.2.8/gzclose.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/gzlib.o: vendor/zlib-1.2.8/gzlib.c
+$(OBJDIR)/gzlib.o: ../vendor/zlib-1.2.8/gzlib.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/gzread.o: vendor/zlib-1.2.8/gzread.c
+$(OBJDIR)/gzread.o: ../vendor/zlib-1.2.8/gzread.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/gzwrite.o: vendor/zlib-1.2.8/gzwrite.c
+$(OBJDIR)/gzwrite.o: ../vendor/zlib-1.2.8/gzwrite.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/infback.o: vendor/zlib-1.2.8/infback.c
+$(OBJDIR)/infback.o: ../vendor/zlib-1.2.8/infback.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/inffast.o: vendor/zlib-1.2.8/inffast.c
+$(OBJDIR)/inffast.o: ../vendor/zlib-1.2.8/inffast.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/inflate.o: vendor/zlib-1.2.8/inflate.c
+$(OBJDIR)/inflate.o: ../vendor/zlib-1.2.8/inflate.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/inftrees.o: vendor/zlib-1.2.8/inftrees.c
+$(OBJDIR)/inftrees.o: ../vendor/zlib-1.2.8/inftrees.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/trees.o: vendor/zlib-1.2.8/trees.c
+$(OBJDIR)/trees.o: ../vendor/zlib-1.2.8/trees.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/uncompr.o: vendor/zlib-1.2.8/uncompr.c
+$(OBJDIR)/uncompr.o: ../vendor/zlib-1.2.8/uncompr.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/zutil.o: vendor/zlib-1.2.8/zutil.c
+$(OBJDIR)/zutil.o: ../vendor/zlib-1.2.8/zutil.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

@@ -20,19 +20,19 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = obj/release/duktape
-  TARGETDIR  = build
-  TARGET     = $(TARGETDIR)/duktape.dll
-  DEFINES   += -DDUK_OPT_DLL_BUILD
-  INCLUDES  += -Ivendor/duktape-1.3.0/src
+  OBJDIR     = obj/release/minizip
+  TARGETDIR  = ../build
+  TARGET     = $(TARGETDIR)/libminizip.a
+  DEFINES   +=
+  INCLUDES  += -I../vendor/zlib-1.2.8
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
   ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -s -shared -Wl,--out-implib="build/libduktape.a" -static
+  ALL_LDFLAGS   += $(LDFLAGS) -s
   LDDEPS    +=
   LIBS      += $(LDDEPS)
-  LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
+  LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -42,7 +42,10 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/duktape.o \
+	$(OBJDIR)/unzip.o \
+	$(OBJDIR)/zip.o \
+	$(OBJDIR)/ioapi.o \
+	$(OBJDIR)/iowin32.o \
 
 RESOURCES := \
 
@@ -60,7 +63,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking duktape
+	@echo Linking minizip
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -81,7 +84,7 @@ else
 endif
 
 clean:
-	@echo Cleaning duktape
+	@echo Cleaning minizip
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -102,7 +105,19 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/duktape.o: vendor/duktape-1.3.0/src/duktape.c
+$(OBJDIR)/unzip.o: ../vendor/zlib-1.2.8/contrib/minizip/unzip.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/zip.o: ../vendor/zlib-1.2.8/contrib/minizip/zip.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/ioapi.o: ../vendor/zlib-1.2.8/contrib/minizip/ioapi.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+
+$(OBJDIR)/iowin32.o: ../vendor/zlib-1.2.8/contrib/minizip/iowin32.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

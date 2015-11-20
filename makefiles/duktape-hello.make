@@ -20,17 +20,17 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = obj/release/duk
-  TARGETDIR  = build
-  TARGET     = $(TARGETDIR)/duk.exe
+  OBJDIR     = obj/release/duktape-hello
+  TARGETDIR  = ../build
+  TARGET     = $(TARGETDIR)/duktape-hello.exe
   DEFINES   +=
-  INCLUDES  += -Ivendor/duktape-1.3.0/src
+  INCLUDES  += -I../vendor/duktape-1.3.0/src
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
   ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -Lbuild -s
-  LDDEPS    += build/libduktape.a
+  ALL_LDFLAGS   += $(LDFLAGS) -L../build -s
+  LDDEPS    += ../build/libduktape.a
   LIBS      += $(LDDEPS)
   LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
@@ -42,7 +42,7 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/duk_cmdline.o \
+	$(OBJDIR)/hello.o \
 
 RESOURCES := \
 
@@ -60,7 +60,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking duk
+	@echo Linking duktape-hello
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -81,7 +81,7 @@ else
 endif
 
 clean:
-	@echo Cleaning duk
+	@echo Cleaning duktape-hello
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -102,7 +102,7 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/duk_cmdline.o: vendor/duktape-1.3.0/examples/cmdline/duk_cmdline.c
+$(OBJDIR)/hello.o: ../vendor/duktape-1.3.0/examples/hello/hello.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

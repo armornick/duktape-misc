@@ -1,6 +1,8 @@
 -- Main project container
 solution "DynamicDuktape"
+	location "makefiles"
 	targetdir "build"
+	
 	configurations {'release'}
 	flags { 'StaticRuntime' }
 

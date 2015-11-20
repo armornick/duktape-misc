@@ -20,19 +20,19 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = obj/release/minizip
-  TARGETDIR  = build
-  TARGET     = $(TARGETDIR)/libminizip.a
+  OBJDIR     = obj/release/dukplus
+  TARGETDIR  = ../build
+  TARGET     = $(TARGETDIR)/dukplus.exe
   DEFINES   +=
-  INCLUDES  += -Ivendor/zlib-1.2.8
+  INCLUDES  += -I../vendor/duktape-1.3.0/src
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
   ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -s
-  LDDEPS    +=
+  ALL_LDFLAGS   += $(LDFLAGS) -L../build -s
+  LDDEPS    += ../build/libduktape.a
   LIBS      += $(LDDEPS)
-  LINKCMD    = $(AR) -rcs $(TARGET) $(OBJECTS)
+  LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -42,10 +42,10 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/unzip.o \
-	$(OBJDIR)/zip.o \
-	$(OBJDIR)/ioapi.o \
-	$(OBJDIR)/iowin32.o \
+	$(OBJDIR)/loadlib.o \
+	$(OBJDIR)/iolib.o \
+	$(OBJDIR)/oslib.o \
+	$(OBJDIR)/main.o \
 
 RESOURCES := \
 
@@ -63,7 +63,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking minizip
+	@echo Linking dukplus
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -84,7 +84,7 @@ else
 endif
 
 clean:
-	@echo Cleaning minizip
+	@echo Cleaning dukplus
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -105,19 +105,19 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/unzip.o: vendor/zlib-1.2.8/contrib/minizip/unzip.c
+$(OBJDIR)/loadlib.o: ../src/dukplus/loadlib.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/zip.o: vendor/zlib-1.2.8/contrib/minizip/zip.c
+$(OBJDIR)/iolib.o: ../src/dukplus/iolib.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/ioapi.o: vendor/zlib-1.2.8/contrib/minizip/ioapi.c
+$(OBJDIR)/oslib.o: ../src/dukplus/oslib.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/iowin32.o: vendor/zlib-1.2.8/contrib/minizip/iowin32.c
+$(OBJDIR)/main.o: ../src/dukplus/main.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

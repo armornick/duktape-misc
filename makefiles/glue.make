@@ -20,17 +20,17 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = obj/release/dukzip
-  TARGETDIR  = build
-  TARGET     = $(TARGETDIR)/zip.dll
-  DEFINES   += -DBUILD_AS_DLL
-  INCLUDES  += -Ivendor/duktape-1.3.0/src -Ivendor/zlib-1.2.8 -Ivendor/zlib-1.2.8/contrib/minizip
+  OBJDIR     = obj/release/glue
+  TARGETDIR  = ../build
+  TARGET     = $(TARGETDIR)/glue.exe
+  DEFINES   +=
+  INCLUDES  += -I../vendor/srlua-5.3
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
   ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -Lbuild -s -shared -Wl,--out-implib="build/libzip.a"
-  LDDEPS    += build/libduktape.a build/libminizip.a build/libzlib.a
+  ALL_LDFLAGS   += $(LDFLAGS) -s
+  LDDEPS    +=
   LIBS      += $(LDDEPS)
   LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
@@ -42,7 +42,7 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/zip.o \
+	$(OBJDIR)/glue.o \
 
 RESOURCES := \
 
@@ -60,7 +60,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking dukzip
+	@echo Linking glue
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -81,7 +81,7 @@ else
 endif
 
 clean:
-	@echo Cleaning dukzip
+	@echo Cleaning glue
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -102,7 +102,7 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/zip.o: src/dukzip/zip.c
+$(OBJDIR)/glue.o: ../vendor/srlua-5.3/glue.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
