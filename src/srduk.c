@@ -5,6 +5,10 @@
 * This code is hereby placed in the public domain.
 */
 
+#ifdef _MSC_VER
+#define  _CRT_SECURE_NO_WARNINGS
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -50,12 +54,19 @@ static void srduk_load_script (duk_context *ctx, char *srduk_filename) {
 	if (memcmp(t.sig,GLUESIG,GLUELEN)!=0) duk_error(ctx,DUK_ERR_INTERNAL_ERROR,"no Duktape program found in %s",srduk_filename);
 	if (fseek(f,t.size1,SEEK_SET)!=0) cannot("seek");
 
-	char *filebuff = malloc(t.size2); int n;
+#if defined(__GNUC__) && !defined(DUK_NO_VLA)
+	char filebuff[t.size2]; 
+#else
+	char *filebuff = malloc(t.size2);
+#endif
+	int n;
 	if (filebuff == NULL) duk_error(ctx,DUK_ERR_INTERNAL_ERROR,"could not allocate memory to hold file");
 	n = fread(filebuff,1,t.size2,f);
 	duk_eval_lstring_noresult(ctx, filebuff, n);
 
+#if !defined(__GNUC__) || defined(DUK_NO_VLA)
 	free(filebuff);
+#endif
 	fclose(f);
 }
 
@@ -67,6 +78,8 @@ static duk_ret_t pmain (duk_context *ctx) {
 	srduk_push_argv(ctx, argc, argv);
 	// register any user libraries/functions here
 	srduk_load_script(ctx, argv[0]);
+
+	return 0;
 }
 
 static void fatal(const char* progname, const char* message)
@@ -77,10 +90,12 @@ static void fatal(const char* progname, const char* message)
 
 int main(int argc, char const *argv[]) {
 	
+	duk_context *ctx;
+
 	getprogname();
 	if (argv[0]==NULL) fatal("srduk","cannot locate this executable");
 
-	duk_context *ctx = duk_create_heap_default();
+	ctx = duk_create_heap_default();
 	if (ctx==NULL) fatal(argv[0],"failed to create duktape heap");
 
 	duk_push_c_function(ctx, pmain, 2);

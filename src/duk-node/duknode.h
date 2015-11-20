@@ -1,6 +1,10 @@
 #ifndef _DUKNODE_H_
 #define _DUKNODE_H_
 
+#ifdef _MSC_VER
+#define  _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -64,6 +68,7 @@ Based on the Foundation Library (see: https://github.com/rampantpixels/foundatio
 	#define stat _stat
 	#define lstat _stat
 	#define mkdir(path, mode) _mkdir(path)
+	#define snprintf _snprintf
 
 	#define S_IFDIR _S_IFDIR
 	#define S_IFREG _S_IFREG

@@ -9,6 +9,12 @@ Heavily based on the loadlib.c file of Lua 5.2.3.
 /*
 ** if needed, includes windows header before everything else
 */
+
+
+#ifdef _MSC_VER
+#define  _CRT_SECURE_NO_WARNINGS
+#endif
+
 #if defined(_WIN32)
 #include <windows.h>
 
@@ -34,6 +40,8 @@ Heavily based on the loadlib.c file of Lua 5.2.3.
 #endif
 
 #include <duktape.h>
+
+
 
 /*
 ** DUK_PATH and DUK_CPATH are the names of the environment
@@ -293,12 +301,19 @@ static duk_ret_t duk_read_file (duk_context *ctx) {
   long fsize = ftell(f);
   fseek(f, 0, SEEK_SET);
 
+#if defined(__GNUC__) && !defined(DUK_NO_VLA)
   char inbuff[fsize + 1];
+#else
+  char *inbuff = (char*) malloc(fsize + 1);
+#endif
   fread(inbuff, fsize, 1, f);
   fclose(f);
   inbuff[fsize] = 0;
 
   duk_push_string(ctx, inbuff);
+#if !defined(__GNUC__) || defined(DUK_NO_VLA)
+  free(inbuff);
+#endif
   return 1;
 }
 

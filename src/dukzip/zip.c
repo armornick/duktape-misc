@@ -83,12 +83,21 @@ static duk_ret_t dukzip_unz_listfiles(duk_context *ctx) {
 		unz_file_info64 fileInfo;
 		unzGetCurrentFileInfo64(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
 
+#if defined(__GNUC__) && !defined(DUK_NO_VLA)
 		char fileName[fileInfo.size_filename];
+#else
+		char *fileName = malloc(fileInfo.size_filename);
+#endif
+
 		// unzGetCurrentFileInfo(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
 		unzGetCurrentFileInfo64(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
 
 		duk_push_lstring(ctx, fileName, fileInfo.size_filename);
 		duk_put_prop_index(ctx, arr_idx, i++);
+
+#if !defined(__GNUC__) || defined(DUK_NO_VLA)
+		free(fileName);
+#endif
 
 		res = unzGoToNextFile(archive);
 
@@ -142,11 +151,21 @@ static duk_ret_t dukzip_unz_getfilename(duk_context *ctx) {
 	// unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
 	unzGetCurrentFileInfo64(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
 
+#if defined(__GNUC__) && !defined(DUK_NO_VLA)
 	char fileName[fileInfo.size_filename];
+#else
+	char *fileName = malloc(fileInfo.size_filename);
+#endif
+
 	// unzGetCurrentFileInfo(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
 	unzGetCurrentFileInfo64(archive, &fileInfo, fileName, fileInfo.size_filename, NULL, 0, NULL, 0);
 
 	duk_push_lstring(ctx, fileName, fileInfo.size_filename);
+
+#if !defined(__GNUC__) || defined(DUK_NO_VLA)
+	free(fileName);
+#endif
+
 	return 1;
 }
 
@@ -158,9 +177,16 @@ static duk_ret_t dukzip_unz_getfileinfo(duk_context *ctx) {
 
 	// unzGetCurrentFileInfo(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
 	unzGetCurrentFileInfo64(archive, &fileInfo, NULL, 0, NULL, 0, NULL, 0);
-	char fileName[fileInfo.size_filename], 
-		extraField[fileInfo.size_file_extra], 
+
+#if defined(__GNUC__) && !defined(DUK_NO_VLA)
+	char fileName[fileInfo.size_filename],
+		extraField[fileInfo.size_file_extra],
 		commentString[fileInfo.size_file_comment];
+#else
+	char *fileName = malloc(fileInfo.size_filename); 
+	char *extraField = malloc(fileInfo.size_file_extra); 
+	char *commentString = malloc(fileInfo.size_file_comment);
+#endif
 
 	// unzGetCurrentFileInfo(archive, &fileInfo, 
 	// 	fileName, fileInfo.size_filename,
@@ -187,6 +213,14 @@ static duk_ret_t dukzip_unz_getfileinfo(duk_context *ctx) {
 
 	duk_push_lstring(ctx, commentString, fileInfo.size_file_comment);
 	duk_put_prop_string(ctx, info_obj, "comment");
+
+#if !defined(__GNUC__) || defined(DUK_NO_VLA)
+	free(fileName);
+	free(extraField);
+	free(commentString);
+#endif
+
+	return 1;
 }
 
 static duk_ret_t dukzip_unz_readfile(duk_context *ctx) {

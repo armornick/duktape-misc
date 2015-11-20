@@ -38,6 +38,7 @@ define BUILD_AS_DLL to build as a duktape module.
 	#define getcwd _getcwd
 	#define mkdir _mkdir
 	#define rmdir _rmdir
+  #define snprintf _snprintf
 #endif
 
 

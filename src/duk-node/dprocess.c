@@ -11,6 +11,7 @@ Notes:
 
 #include "duknode.h"
 
+
 /*
 ------------------------------------------------------------------------------------
 */
@@ -18,11 +19,7 @@ Notes:
 #if DUKNODE_PLATFORM_WINDOWS 
 
 int setenv(const char *envname, const char *envval, int overwrite) {
-	int bufsiz = strlen(envname) + strlen(envval) + 2;
-	// char *envstring = malloc(bufsiz);
-	char envstring[bufsiz];
-	snprintf(envstring, bufsiz, "%s=%s", envname, envval);
-	return _putenv(envstring);
+	return _putenv_s(envname, envval);
 }
 
 #endif
