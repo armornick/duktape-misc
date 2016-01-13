@@ -24,7 +24,7 @@ ifeq ($(config),release)
   TARGETDIR  = ../build
   TARGET     = $(TARGETDIR)/duktape.dll
   DEFINES   += -DDUK_OPT_DLL_BUILD
-  INCLUDES  += -I../vendor/duktape-1.3.0/src
+  INCLUDES  += -I../vendor/duktape-1.4.0/src
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
@@ -102,7 +102,7 @@ $(GCH): $(PCH)
 	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/duktape.o: ../vendor/duktape-1.3.0/src/duktape.c
+$(OBJDIR)/duktape.o: ../vendor/duktape-1.4.0/src/duktape.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 

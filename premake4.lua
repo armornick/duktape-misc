@@ -10,7 +10,7 @@ solution "DynamicDuktape"
 		flags {'Optimize'}
 
 	-- constants
-	local DUKTAPE_DIR = path.join('vendor','duktape-1.3.0')
+	local DUKTAPE_DIR = path.join('vendor','duktape-1.4.0')
 	local DUKPLUS_DIR = path.join('src','dukplus')
 	local DUKNODE_DIR = path.join('src','duk-node')
 
@@ -165,4 +165,12 @@ solution "DynamicDuktape"
 		defines { "BUILD_AS_DLL" }
 		links { "duktape", "minizip", "zlib" }
 
-	
+	-- socket test host (Windows-only at the moment)
+	project "duksock"
+		kind "ConsoleApp"
+		language "C"
+
+		includedirs { path.join(DUKTAPE_DIR, 'src') }
+
+		files { path.join('src','sock','sock.c'), path.join('src','sock','main.c') }
+		links { 'duktape', 'ws2_32' }

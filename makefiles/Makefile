@@ -6,7 +6,7 @@ ifndef config
 endif
 export config
 
-PROJECTS := duktape duktape-hello duk dukplus test-module embed-js-module-test glue srduk duknode dukfs zlib minizip dukzip
+PROJECTS := duktape duktape-hello duk dukplus test-module embed-js-module-test glue srduk duknode dukfs zlib minizip dukzip duksock
 
 .PHONY: all clean help $(PROJECTS)
 
@@ -64,6 +64,10 @@ dukzip: duktape minizip zlib
 	@echo "==== Building dukzip ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f dukzip.make
 
+duksock: duktape
+	@echo "==== Building duksock ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f duksock.make
+
 clean:
 	@${MAKE} --no-print-directory -C . -f duktape.make clean
 	@${MAKE} --no-print-directory -C . -f duktape-hello.make clean
@@ -78,6 +82,7 @@ clean:
 	@${MAKE} --no-print-directory -C . -f zlib.make clean
 	@${MAKE} --no-print-directory -C . -f minizip.make clean
 	@${MAKE} --no-print-directory -C . -f dukzip.make clean
+	@${MAKE} --no-print-directory -C . -f duksock.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -101,5 +106,6 @@ help:
 	@echo "   zlib"
 	@echo "   minizip"
 	@echo "   dukzip"
+	@echo "   duksock"
 	@echo ""
 	@echo "For more information, see http://industriousone.com/premake/quick-start"

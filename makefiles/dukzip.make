@@ -24,7 +24,7 @@ ifeq ($(config),release)
   TARGETDIR  = ../build
   TARGET     = $(TARGETDIR)/zip.dll
   DEFINES   += -DBUILD_AS_DLL
-  INCLUDES  += -I../vendor/duktape-1.3.0/src -I../vendor/zlib-1.2.8 -I../vendor/zlib-1.2.8/contrib/minizip
+  INCLUDES  += -I../vendor/duktape-1.4.0/src -I../vendor/zlib-1.2.8 -I../vendor/zlib-1.2.8/contrib/minizip
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
