@@ -92,6 +92,23 @@ static void duk_get_sockaddr(duk_context *ctx, struct sockaddr_in *server) {
     server->sin_port = htons( port );
 }
 
+static void duk_put_sockaddr(duk_context *ctx, duk_idx_t obj_index, struct sockaddr_in *client) {
+	if (duk_is_object(ctx, obj_index)) {
+		char *address = inet_ntoa(client->sin_addr);
+		duk_int_t port = ntohs(client->sin_port);
+		duk_int_t family = client->sin_family;
+
+		duk_push_string(ctx, address);
+		duk_put_prop_string(ctx, obj_index, "address");
+
+		duk_push_int(ctx, family);
+		duk_put_prop_string(ctx, obj_index, "family");
+
+		duk_push_int(ctx, port);
+		duk_put_prop_string(ctx, obj_index, "port");
+	}
+}
+
 
 static duk_ret_t duk_connect(duk_context *ctx) {
 	SOCKET s;
@@ -199,6 +216,7 @@ static duk_ret_t duk_get_addrinfo(duk_context *ctx, struct addrinfo *hints, duk_
 
 static void duk_push_addrinfo(duk_context *ctx, struct addrinfo *first) {
 	struct addrinfo *cursor;
+	struct sockaddr_in  *sockaddr_ipv4;
 	duk_idx_t array_idx = duk_push_array(ctx);
 	int i = 0;
 
@@ -219,6 +237,12 @@ static void duk_push_addrinfo(duk_context *ctx, struct addrinfo *first) {
 
 		duk_push_string(ctx, cursor->ai_canonname);
 		duk_put_prop_string(ctx, -2, "canonname");
+
+		if (cursor->ai_family == AF_INET) {
+			sockaddr_ipv4 = (struct sockaddr_in *) cursor->ai_addr;
+			duk_push_string(ctx, inet_ntoa(sockaddr_ipv4->sin_addr));
+			duk_put_prop_string(ctx, -2, "addr");
+		}
 
 		duk_put_prop_index(ctx, array_idx, i++);
 	}
@@ -257,6 +281,46 @@ static duk_ret_t duk_bind(duk_context *ctx) {
 		duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not bind socket (error code %d)", WSAGetLastError());
         return -1;
 	}
+
+	return 0;
+}
+
+static duk_ret_t duk_listen(duk_context *ctx) {
+	SOCKET s;
+	int backlog, retcode;
+
+	s = (SOCKET) duk_require_pointer(ctx, 0);
+	backlog = duk_require_int(ctx, 1);
+
+	retcode = listen(s, backlog);
+	if (retcode != 0) {
+		duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not listen on socket (error code %d)", WSAGetLastError());
+        return -1;
+	}
+
+	return 0;
+}
+
+static duk_ret_t duk_accept(duk_context *ctx) {
+	SOCKET s, new_socket;
+	struct sockaddr_in client;
+	int c;
+
+	s = (SOCKET) duk_require_pointer(ctx, 0);
+
+	c = sizeof(struct sockaddr_in);
+	new_socket = accept(s , (struct sockaddr *)&client, &c);
+    if (new_socket == INVALID_SOCKET) {
+    	duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not accept client socket (error code %d)", WSAGetLastError());
+        return -1;
+    }
+
+    if (duk_is_object(ctx, 1)) {
+    	duk_put_sockaddr(ctx, 1, &client);
+    }
+
+    duk_push_pointer(ctx, (void*) new_socket);
+	return 1;
 }
 
 const duk_function_list_entry sock_functions [] = {
@@ -268,6 +332,8 @@ const duk_function_list_entry sock_functions [] = {
     { "closesocket", duk_closesocket, 1 },
     { "getaddrinfo", duk_getaddrinfo, 3 },
     { "bind", duk_bind, 4 },
+    { "listen", duk_listen, 2 },
+    { "accept", duk_accept, 2 },
     { NULL, NULL, 0 }
 };
 
