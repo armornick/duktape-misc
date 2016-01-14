@@ -528,6 +528,7 @@ static duk_ret_t dukzip_open(duk_context *ctx) {
 		archive = unzOpen64(filename);
 		if (archive == NULL) {
 			duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not open file '%s'", filename);
+			return -1;
 		}
 		
 		dukzip_push_unzfile(ctx, archive, filename);
@@ -540,6 +541,7 @@ static duk_ret_t dukzip_open(duk_context *ctx) {
 		archive = zipOpen64(filename, APPEND_STATUS_CREATE);
 		if (archive == NULL) {
 			duk_error(ctx, DUK_ERR_INTERNAL_ERROR, "could not open file '%s'", filename);
+			return -1;
 		}
 
 		dukzip_push_zipfile(ctx, archive, filename);
@@ -547,6 +549,7 @@ static duk_ret_t dukzip_open(duk_context *ctx) {
 
 	} else {
 		duk_error(ctx, DUK_ERR_TYPE_ERROR, "%s is not a valid file mode (valid modes: 'r' or 'w')", filemode);
+		return -1;
 	}
 }
 
