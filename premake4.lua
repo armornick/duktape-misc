@@ -13,6 +13,8 @@ solution "DynamicDuktape"
 	local DUKTAPE_DIR = path.join('vendor','duktape-1.4.0')
 	local DUKPLUS_DIR = path.join('src','dukplus')
 	local DUKNODE_DIR = path.join('src','duk-node')
+	local DUKPP_DIR = path.join('src', 'dukpp')
+	local DUKPP_TEST_DIR = path.join('src', 'dukpp-tests')
 
 	local ZLIB_DIR = path.join('vendor','zlib-1.2.8')
 	local MINIZP_DIR = path.join(ZLIB_DIR, 'contrib','minizip')
@@ -174,3 +176,13 @@ solution "DynamicDuktape"
 
 		files { path.join('src','sock','sock.c'), path.join('src','sock','main.c') }
 		links { 'duktape', 'ws2_32' }
+
+	-- Duktape C++ wrapper type-handling test 
+	project "dukpp-types"
+		kind "ConsoleApp"
+		language "C++"
+
+		includedirs { path.join(DUKTAPE_DIR, 'src'), DUKPP_DIR }
+
+		files { path.join(DUKPP_TEST_DIR, 'typetest.cpp') }
+		links { 'duktape' }
