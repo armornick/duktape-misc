@@ -16,6 +16,7 @@ extern "C" {
 #endif
 
 #include "dukutils.hpp"
+#include "dukbinder.hpp"
 
 
 #endif // _DUKPP_HPP_

@@ -20,11 +20,11 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = obj/release/dukplus
+  OBJDIR     = obj/release/dukpp-binding
   TARGETDIR  = ../build
-  TARGET     = $(TARGETDIR)/dukplus.exe
+  TARGET     = $(TARGETDIR)/dukpp-binding.exe
   DEFINES   +=
-  INCLUDES  += -I../vendor/duktape-1.4.0/src
+  INCLUDES  += -I../vendor/duktape-1.4.0/src -I../src/dukpp
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
@@ -32,7 +32,7 @@ ifeq ($(config),release)
   ALL_LDFLAGS   += $(LDFLAGS) -L../build -s -static-libgcc
   LDDEPS    += ../build/libduktape.a
   LIBS      += $(LDDEPS)
-  LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
+  LINKCMD    = $(CXX) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
   define PRELINKCMDS
@@ -42,10 +42,8 @@ ifeq ($(config),release)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/loadlib.o \
-	$(OBJDIR)/iolib.o \
-	$(OBJDIR)/oslib.o \
-	$(OBJDIR)/main.o \
+	$(OBJDIR)/bindertest.o \
+	$(OBJDIR)/file.o \
 
 RESOURCES := \
 
@@ -63,7 +61,7 @@ all: $(TARGETDIR) $(OBJDIR) prebuild prelink $(TARGET)
 	@:
 
 $(TARGET): $(GCH) $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking dukplus
+	@echo Linking dukpp-binding
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -84,7 +82,7 @@ else
 endif
 
 clean:
-	@echo Cleaning dukplus
+	@echo Cleaning dukpp-binding
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -102,24 +100,16 @@ prelink:
 ifneq (,$(PCH))
 $(GCH): $(PCH)
 	@echo $(notdir $<)
-	$(SILENT) $(CC) -x c-header $(ALL_CFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
+	$(SILENT) $(CXX) -x c++-header $(ALL_CXXFLAGS) -MMD -MP $(DEFINES) $(INCLUDES) -o "$@" -MF "$(@:%.gch=%.d)" -c "$<"
 endif
 
-$(OBJDIR)/loadlib.o: ../src/dukplus/loadlib.c
+$(OBJDIR)/bindertest.o: ../src/dukpp-tests/bindertest.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
-$(OBJDIR)/iolib.o: ../src/dukplus/iolib.c
+$(OBJDIR)/file.o: ../src/dukpp-tests/file.cpp
 	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
-
-$(OBJDIR)/oslib.o: ../src/dukplus/oslib.c
-	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
-
-$(OBJDIR)/main.o: ../src/dukplus/main.c
-	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF $(@:%.o=%.d) -c "$<"
 
 -include $(OBJECTS:%.o=%.d)
 ifneq (,$(PCH))

@@ -186,3 +186,13 @@ solution "DynamicDuktape"
 
 		files { path.join(DUKPP_TEST_DIR, 'typetest.cpp') }
 		links { 'duktape' }
+
+	-- Duktape C++ wrapper class binding test 
+	project "dukpp-binding"
+		kind "ConsoleApp"
+		language "C++"
+
+		includedirs { path.join(DUKTAPE_DIR, 'src'), DUKPP_DIR }
+
+		files { path.join(DUKPP_TEST_DIR, 'bindertest.cpp'), path.join(DUKPP_TEST_DIR, 'file.cpp') }
+		links { 'duktape' }
