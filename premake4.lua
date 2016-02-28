@@ -9,6 +9,9 @@ solution "DynamicDuktape"
 	configuration 'release'
 		flags {'Optimize'}
 
+	configuration { "windows", "gmake" }
+		linkoptions '-static'
+
 	-- constants
 	local DUKTAPE_DIR = path.join('vendor','duktape-1.4.0')
 	local DUKPLUS_DIR = path.join('src','dukplus')
@@ -182,6 +185,8 @@ solution "DynamicDuktape"
 		kind "ConsoleApp"
 		language "C++"
 
+		-- defines { 'DUKPP_NO_STL' }
+
 		includedirs { path.join(DUKTAPE_DIR, 'src'), DUKPP_DIR }
 
 		files { path.join(DUKPP_TEST_DIR, 'typetest.cpp') }
@@ -195,4 +200,14 @@ solution "DynamicDuktape"
 		includedirs { path.join(DUKTAPE_DIR, 'src'), DUKPP_DIR }
 
 		files { path.join(DUKPP_TEST_DIR, 'bindertest.cpp'), path.join(DUKPP_TEST_DIR, 'file.cpp') }
+		links { 'duktape' }
+
+	-- Duktape C++ wrapper value object test 
+	project "dukpp-values"
+		kind "ConsoleApp"
+		language "C++"
+
+		includedirs { path.join(DUKTAPE_DIR, 'src'), DUKPP_DIR }
+
+		files { path.join(DUKPP_TEST_DIR, 'valuetest.cpp') }
 		links { 'duktape' }

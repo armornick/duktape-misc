@@ -29,7 +29,7 @@ ifeq ($(config),release)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
   ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -L../build -s -shared -Wl,--out-implib="../build/libtest.a" -static-libgcc
+  ALL_LDFLAGS   += $(LDFLAGS) -L../build -s -shared -Wl,--out-implib="../build/libtest.a" -static
   LDDEPS    += ../build/libduktape.a
   LIBS      += $(LDDEPS)
   LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
