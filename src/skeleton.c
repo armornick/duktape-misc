@@ -3,7 +3,7 @@
 #include <string.h>
 #include "duktape.h"
 
-duk_ret_t pmain (duk_context *ctx); /* duktape main function */
+static duk_ret_t pmain (duk_context *ctx); /* duktape main function */
 
 int main(int argc, char const *argv[]) {
 	duk_context *ctx = NULL;
@@ -46,7 +46,7 @@ static duk_ret_t pmain (duk_context *ctx) {
 	int argc; char** argv;
 	argc = duk_require_int(ctx, 0);
 	argv = duk_require_pointer(ctx, 1);
-	srduk_push_argv(ctx, argc, argv);
+	duk_push_argv(ctx, argc, argv);
 
 	// program logic here
 
