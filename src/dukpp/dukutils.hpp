@@ -156,16 +156,16 @@ for the most common data types.
 */
 template<>
 struct dukpp_Impl<bool> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_boolean(ctx, index)); }
-	static bool dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_require_boolean(ctx, index)); }
-	static bool dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_get_boolean(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_boolean(ctx, index) != 0); }
+	static bool dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_require_boolean(ctx, index) != 0); }
+	static bool dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_get_boolean(ctx, index) != 0); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_boolean(ctx, index)); }
 	static void dukpp_push(duk_context *ctx, const bool& value) { duk_push_boolean(ctx, value); }
 };
 
 template<>
 struct dukpp_Impl<const char *> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_string(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_string(ctx, index) != 0); }
 	static const char* dukpp_require(duk_context *ctx, duk_idx_t index) { return duk_require_string(ctx, index); }
 	static const char* dukpp_get(duk_context *ctx, duk_idx_t index) { return duk_get_string(ctx, index); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { duk_to_string(ctx, index); }
@@ -174,7 +174,7 @@ struct dukpp_Impl<const char *> {
 
 template<>
 struct dukpp_Impl<unsigned int> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static unsigned int dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<unsigned int>(duk_require_uint(ctx, index)); }
 	static unsigned int dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<unsigned int>(duk_get_uint(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_uint(ctx, index)); }
@@ -183,7 +183,7 @@ struct dukpp_Impl<unsigned int> {
 
 template<>
 struct dukpp_Impl<unsigned long> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static unsigned long dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<unsigned long>(duk_require_uint(ctx, index)); }
 	static unsigned long dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<unsigned long>(duk_get_uint(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_uint(ctx, index)); }
@@ -192,7 +192,7 @@ struct dukpp_Impl<unsigned long> {
 
 template<>
 struct dukpp_Impl<unsigned char> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static unsigned char dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<unsigned char>(duk_require_int(ctx, index)); }
 	static unsigned char dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<unsigned char>(duk_get_int(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_int(ctx, index)); }
@@ -201,7 +201,7 @@ struct dukpp_Impl<unsigned char> {
 
 template<>
 struct dukpp_Impl<int> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static int dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<int>(duk_require_int(ctx, index)); }
 	static int dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<int>(duk_get_int(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_int(ctx, index)); }
@@ -210,7 +210,7 @@ struct dukpp_Impl<int> {
 
 template<>
 struct dukpp_Impl<long> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static long dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<long>(duk_require_int(ctx, index)); }
 	static long dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<long>(duk_get_int(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_int(ctx, index)); }
@@ -219,7 +219,7 @@ struct dukpp_Impl<long> {
 
 template<>
 struct dukpp_Impl<char> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static char dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<char>(duk_require_int(ctx, index)); }
 	static char dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<char>(duk_get_int(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_int(ctx, index)); }
@@ -228,7 +228,7 @@ struct dukpp_Impl<char> {
 
 template<>
 struct dukpp_Impl<float> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static float dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<float>(duk_require_number(ctx, index)); }
 	static float dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<float>(duk_get_number(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_number(ctx, index)); }
@@ -237,7 +237,7 @@ struct dukpp_Impl<float> {
 
 template<>
 struct dukpp_Impl<double> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_number(ctx, index) != 0); }
 	static double dukpp_require(duk_context *ctx, duk_idx_t index) { return static_cast<double>(duk_require_number(ctx, index)); }
 	static double dukpp_get(duk_context *ctx, duk_idx_t index) { return static_cast<double>(duk_get_number(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_number(ctx, index)); }
@@ -247,7 +247,7 @@ struct dukpp_Impl<double> {
 /*
 template<>
 struct dukpp_Impl<void*> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_pointer(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_pointer(ctx, index) != 0); }
 	static void* dukpp_require(duk_context *ctx, duk_idx_t index) { return (duk_require_pointer(ctx, index)); }
 	static void* dukpp_get(duk_context *ctx, duk_idx_t index) { return (duk_get_pointer(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_pointer(ctx, index)); }
@@ -260,7 +260,7 @@ struct dukpp_Impl<void*> {
 
 template<>
 struct dukpp_Impl<std::string> {
-	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_string(ctx, index)); }
+	static bool dukpp_is(duk_context *ctx, duk_idx_t index) { return static_cast<bool>(duk_is_string(ctx, index) != 0); }
 	static std::string dukpp_require(duk_context *ctx, duk_idx_t index) { return std::string(duk_require_string(ctx, index)); }
 	static std::string dukpp_get(duk_context *ctx, duk_idx_t index) { return std::string(duk_get_string(ctx, index)); }
 	static void dukpp_to(duk_context *ctx, duk_idx_t index) { (duk_to_string(ctx, index)); }

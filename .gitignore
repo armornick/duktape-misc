@@ -30,5 +30,5 @@
 *.out
 *.app
 
-# premake directory
-obj/
+# project-specific
+build-*/
